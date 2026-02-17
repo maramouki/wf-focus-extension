@@ -16,9 +16,17 @@
 
 ## 🔥 Fonctionnalités
 
--   **Shift + Clic** : Isole la classe sélectionnée.
--   **Bouclier Clip-path** : Bloque le canevas tout en laissant le panneau de style interactif.
--   **ESC** : Quitte le mode focus instantanément.
+-   **Shift + Clic** : Isole la classe sélectionnée en injectant un style temporaire.
+-   **Bouclier Clip-path** : Bloque le canevas via une technique mathématique de découpe pour laisser le panneau de style 100% interactif.
+-   **ESC** : Quitte le mode focus et restaure l'interface.
+
+---
+
+## 🛠 Structure Technique
+
+-   `manifest.json` : Configuration V3.
+-   `scripts/content.js` : Logique d'injection DOM.
+-   `popup/` : Interface de réglages rapides (opacité du shield).
 
 ---
 
