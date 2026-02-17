@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "WF Focus",
+  "version": "0.1.0",
+  "description": "Streamline Webflow class editing by focusing on parent classes.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://webflow.com/design/*"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Webflow Class Focus"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.webflow.com/*"
+      ],
+      "js": [
+        "scripts/content.js"
+      ],
+      "css": [
+        "styles/main.css"
+      ],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ]
+}

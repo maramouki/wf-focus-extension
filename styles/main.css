@@ -1,0 +1,12 @@
+/* Visual feedback for focused classes */
+.w-extension-focused {
+    border: 2px solid #0050bd !important; /* Webflow blue */
+    box-shadow: 0 0 0 2px rgba(0, 80, 189, 0.2);
+}
+
+/* Visual feedback for disabled classes */
+.w-extension-disabled {
+    opacity: 0.4 !important;
+    filter: grayscale(100%) !important;
+    pointer-events: none; /* Prevent interaction with disabled classes */
+}

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WF Focus</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="icon-container">
+                <span class="main-icon">🎯</span>
+            </div>
+            <h1>WF Focus</h1>
+        </div>
+
+        <div class="settings-card">
+            <div class="setting-item">
+                <div class="info">
+                    <span class="label">Extension Active</span>
+                    <span class="desc">Enable Shift+Click isolation</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="extensionActive" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="setting-item vertical">
+                <div class="info">
+                    <span class="label">Overlay Opacity</span>
+                    <span id="opacityVal" class="badge-val">10%</span>
+                </div>
+                <input type="range" id="overlayOpacity" min="0" max="40" value="10" class="range-slider">
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="setting-item">
+                <div class="info">
+                    <span class="label">Active Badge</span>
+                    <span class="desc">Show badge on icon when active</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="showBadge" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Version 0.1.0 • Refined UI 2.0</p>
+            <button id="resetDefaults" class="secondary-btn">Reset Defaults</button>
+        </div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+
+</html>
