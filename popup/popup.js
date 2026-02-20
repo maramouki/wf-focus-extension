@@ -1,14 +1,12 @@
 const DEFAULTS = {
     enabled: true,
-    opacity: 10,
-    showBadge: true
+    opacity: 10
 };
 
 document.addEventListener('DOMContentLoaded', () => {
     const toggle = document.getElementById('extensionActive');
     const opacitySlider = document.getElementById('overlayOpacity');
     const opacityVal = document.getElementById('opacityVal');
-    const badgeToggle = document.getElementById('showBadge');
     const resetBtn = document.getElementById('resetDefaults');
 
     // Load state
@@ -16,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
         toggle.checked = result.enabled;
         opacitySlider.value = result.opacity;
         opacityVal.textContent = `${result.opacity}%`;
-        badgeToggle.checked = result.showBadge;
     });
 
     // Save Active State
@@ -30,10 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.storage.local.set({ opacity: parseInt(opacitySlider.value) });
     });
 
-    // Save Badge State
-    badgeToggle.addEventListener('change', () => {
-        chrome.storage.local.set({ showBadge: badgeToggle.checked });
-    });
 
     // Reset
     resetBtn.addEventListener('click', () => {
@@ -41,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
             toggle.checked = DEFAULTS.enabled;
             opacitySlider.value = DEFAULTS.opacity;
             opacityVal.textContent = `${DEFAULTS.opacity}%`;
-            badgeToggle.checked = DEFAULTS.showBadge;
         });
     });
 });

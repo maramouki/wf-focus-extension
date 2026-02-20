@@ -1,4 +1,4 @@
-/* WF Focus - v0.1.1 (Sidebar & Position Fix) */
+/* WF Focus - v0.2.1 (Pill Restoration Fixed) */
 
 const CONFIG = {
     selectors: {
@@ -13,30 +13,42 @@ const CONFIG = {
             '.right-sidebar',
             '[data-automation-id="style-panel"]'
         ]
+    },
+    // Timing constants (ms)
+    timing: {
+        beforeType: 150,
+        afterType: 100,
+        afterSelect: 400,
+        retryDelay: 600,
+        settleDelay: 200,
+        maxRetries: 2
     }
 };
 
 let state = {
     isFocusMode: false,
+    isBusy: false,
     focusedClassName: null,
     removedClasses: [],
     overlayElement: null,
     settings: {
         enabled: true,
-        opacity: 10,
-        showBadge: true
+        opacity: 10
     }
 };
+
+// --- Debug Hooks ---
+// To test failure banner, run this in console:
+// document.documentElement.setAttribute('wf-focus-fail', 'true')
 
 const isTopFrame = window.top === window.self;
 
 // --- Persistence & Sync ---
 
 if (isTopFrame) {
-    chrome.storage.local.get(['enabled', 'opacity', 'showBadge'], (result) => {
+    chrome.storage.local.get(['enabled', 'opacity'], (result) => {
         state.settings.enabled = result.enabled !== false;
         state.settings.opacity = result.opacity !== undefined ? result.opacity : 10;
-        state.settings.showBadge = result.showBadge !== false;
     });
 
     chrome.storage.onChanged.addListener((changes) => {
@@ -45,21 +57,7 @@ if (isTopFrame) {
             state.settings.opacity = changes.opacity.newValue;
             if (state.overlayElement) state.overlayElement.style.background = `rgba(0,0,0,${state.settings.opacity / 100})`;
         }
-        if (changes.showBadge) {
-            state.settings.showBadge = changes.showBadge.newValue;
-            updateBadge();
-        }
     });
-}
-
-function updateBadge() {
-    if (!isTopFrame) return;
-    try {
-        chrome.runtime.sendMessage({
-            type: 'UPDATE_BADGE',
-            status: state.isFocusMode ? 'active' : 'inactive'
-        });
-    } catch (e) { } // Extension context might be invalid on some reloads
 }
 
 // --- Utilities ---
@@ -69,21 +67,25 @@ function getPillName(pillElement) {
     return textEl ? textEl.innerText.trim() : null;
 }
 
+function getAllCurrentPillNames() {
+    return Array.from(document.querySelectorAll(CONFIG.selectors.pillWrapper))
+        .map(p => getPillName(p))
+        .filter(Boolean);
+}
+
 function simulateFocus(element) {
     element.focus();
     element.dispatchEvent(new Event('focus', { bubbles: true }));
 }
 
-function setReactValue(element, value) {
-    const lastValue = element.value;
-    element.value = value;
-    const event = new Event('input', { bubbles: true });
-    event.simulated = true;
-    const tracker = element._valueTracker;
-    if (tracker) {
-        tracker.setValue(lastValue);
-    }
-    element.dispatchEvent(event);
+/**
+ * Clears the input field using execCommand.
+ */
+function clearInput(input) {
+    input.focus();
+    input.select();
+    document.execCommand('delete', false, null);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
 function simulateEnter(element) {
@@ -97,9 +99,30 @@ function simulateBackspace(element) {
     element.dispatchEvent(new KeyboardEvent('keydown', params));
 }
 
+/**
+ * Simulates pasting text into an input field.
+ * This effectively prevents Webflow's autocomplete from intercepting
+ * character-by-character typing.
+ */
+function simulatePaste(input, text) {
+    input.focus();
+    input.select();
+
+    // execCommand('insertText') is treated like a paste event in many modern editors (including React)
+    const success = document.execCommand('insertText', false, text);
+
+    if (!success) {
+        console.warn('[WF Focus] execCommand insertText failed, falling back to direct value assignment.');
+        input.value = text;
+    }
+
+    // Ensure React registers the change
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
 // --- UI Logic ---
 
-function showShield() {
+function showShield(failedClasses = []) {
     if (!isTopFrame) return;
 
     // Clean up any stale overlays first
@@ -193,6 +216,61 @@ function showShield() {
     textWrapper.appendChild(title);
     textWrapper.appendChild(instructions);
 
+    if (failedClasses.length > 0) {
+        const failedNote = document.createElement('div');
+        failedNote.style.cssText = `
+            margin-top: 14px;
+            padding: 12px 14px;
+            background: #fff8f0;
+            border: 1px solid #ffd8b1;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: inset 0 1px 3px rgba(255,145,0,0.05);
+        `;
+
+        const failedHeader = document.createElement('div');
+        failedHeader.style.cssText = `
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #af4c00;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        `;
+        failedHeader.innerHTML = '<span>⚠️</span> Manual Restore Needed';
+
+        const pillContainer = document.createElement('div');
+        pillContainer.style.cssText = `
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        `;
+
+        failedClasses.forEach(name => {
+            const failPill = document.createElement('span');
+            failPill.style.cssText = `
+                background: #fefefe;
+                border: 1px dashed #ff9100;
+                color: #ff9100;
+                padding: 4px 10px;
+                border-radius: 16px;
+                font-size: 11px;
+                font-weight: 600;
+                white-space: nowrap;
+            `;
+            failPill.textContent = name;
+            pillContainer.appendChild(failPill);
+        });
+
+        failedNote.appendChild(failedHeader);
+        failedNote.appendChild(pillContainer);
+        textWrapper.appendChild(failedNote);
+    }
+
     const restoreBtn = document.createElement('button');
     restoreBtn.style.cssText = `
         margin-left: 12px;
@@ -207,8 +285,15 @@ function showShield() {
         transition: .2s;
         box-shadow: 0 4px 12px rgba(255, 145, 0, 0.2);
     `;
-    restoreBtn.textContent = "Restore";
-    restoreBtn.onclick = (e) => { e.stopPropagation(); restoreClasses(); };
+    restoreBtn.textContent = failedClasses.length > 0 ? "Got it" : "Restore";
+    restoreBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (failedClasses.length > 0) {
+            exitFocusMode();
+        } else {
+            restoreClasses();
+        }
+    };
 
     toast.appendChild(iconContainer);
     toast.appendChild(textWrapper);
@@ -229,7 +314,6 @@ function showShield() {
 
     document.body.appendChild(overlay);
     state.overlayElement = overlay;
-    updateBadge();
 }
 
 function hideShield() {
@@ -237,7 +321,6 @@ function hideShield() {
         const el = state.overlayElement || document.getElementById('wf-extension-global-mask');
         if (el) el.remove();
         state.overlayElement = null;
-        updateBadge();
     }
 }
 
@@ -245,38 +328,186 @@ function hideShield() {
 
 async function removeClass(pillElement) {
     pillElement.click();
-    await new Promise(r => setTimeout(r, 60));
+    await new Promise(r => setTimeout(r, 100)); // Increased
     const input = document.querySelector(CONFIG.selectors.input);
     if (input) {
         simulateFocus(input);
-        await new Promise(r => setTimeout(r, 40));
+        await new Promise(r => setTimeout(r, 60));
         simulateBackspace(input);
     }
 }
 
+/**
+ * Removes a wrongly-added class by clicking its pill and pressing backspace.
+ */
+async function removeWrongClass(wrongClassName) {
+    const pills = Array.from(document.querySelectorAll(CONFIG.selectors.pillWrapper));
+    const wrongPill = pills.find(p => getPillName(p) === wrongClassName);
+    if (wrongPill) {
+        console.log(`[WF Focus] Removing wrong class "${wrongClassName}"...`);
+        await removeClass(wrongPill);
+        await new Promise(r => setTimeout(r, 400)); // Significant wait after removal
+    }
+}
+
+/**
+ * Attempts to restore a single class using a simple Paste + Enter strategy.
+ * Returns true if the correct class pill appeared.
+ */
+async function restoreSingleClass(input, className) {
+    const pillsBefore = getAllCurrentPillNames();
+
+    // Check if class already exists to avoid duplication
+    if (pillsBefore.includes(className)) {
+        console.log(`[WF Focus] "${className}" already exists, skipping.`);
+        return true;
+    }
+
+    // Sabotage Hook for Testing
+    if (document.documentElement.getAttribute('wf-focus-fail') === 'true') {
+        console.warn('[WF Focus] DEBUG: Sabotaging restoration of', className);
+        return false;
+    }
+
+    // 1. Focus and clear input
+    simulateFocus(input);
+    clearInput(input);
+    await new Promise(r => setTimeout(r, CONFIG.timing.beforeType));
+
+    // 2. Paste the value
+    console.log(`[WF Focus] Pasting "${className}"...`);
+    simulatePaste(input, className);
+
+    // 3. Short wait for UI to process the paste operation
+    await new Promise(r => setTimeout(r, 100));
+
+    // 4. Confirm with Enter
+    simulateEnter(input);
+
+    // 5. Wait for Webflow to process the addition
+    await new Promise(r => setTimeout(r, CONFIG.timing.afterSelect));
+
+    // 6. Verification
+    const pillsAfter = getAllCurrentPillNames();
+    const wasAdded = pillsAfter.includes(className);
+
+    // 7. Check for wrongly added classes
+    const newlyAdded = pillsAfter.filter(p => !pillsBefore.includes(p));
+    const wrongClasses = newlyAdded.filter(p => p !== className);
+
+    if (wrongClasses.length > 0) {
+        console.warn(`[WF Focus] Wrong class(es) added: [${wrongClasses.join(', ')}]. Removing...`);
+        for (const wrong of wrongClasses) {
+            await removeWrongClass(wrong);
+        }
+    }
+
+    if (wasAdded) {
+        console.log(`[WF Focus] ✓ Restored "${className}".`);
+    } else {
+        console.warn(`[WF Focus] ✗ "${className}" not found after paste attempt.`);
+    }
+
+    return wasAdded;
+}
+
 async function restoreClasses() {
-    if (!isTopFrame || !state.isFocusMode) {
-        exitFocusMode();
+    if (!isTopFrame || !state.isFocusMode || state.isBusy) {
+        if (state.isBusy) console.log('[WF Focus] Operation in progress, ignoring restore request.');
+        if (!state.isFocusMode && !state.isBusy) exitFocusMode();
         return;
     }
 
+    state.isBusy = true;
+
     const input = document.querySelector(CONFIG.selectors.input);
     if (!input) {
+        console.warn('[WF Focus] Cannot restore: Input field not found.');
         exitFocusMode();
+        state.isBusy = false;
         return;
     }
 
     const classesToRestore = [...state.removedClasses];
-    exitFocusMode();
+    const focusedClass = state.focusedClassName;
+    console.log('[WF Focus] Restoring classes:', classesToRestore);
+
+    // IMPORTANT: Don't call exitFocusMode() yet. Keeping state active ensures
+    // the UI remains stable and our selectors/logic are in the correct mode.
+
+    // 1. Reset Context: Ensure the class input is focused for a NEW class
+    // Instead of clicking the pill (which might trigger rename mode), 
+    // we click the input wrapper or the input itself.
+    const inputWrapper = document.querySelector('[data-automation-id="css-token-input-wrapper"]') ||
+        document.querySelector(CONFIG.selectors.input)?.parentElement;
+
+    if (inputWrapper) {
+        console.log('[WF Focus] Clicking input wrapper to reset context...');
+        inputWrapper.click();
+        await new Promise(r => setTimeout(r, 100));
+    }
+
+    // 2. Clear input and re-acquire
+    let activeInput = document.querySelector(CONFIG.selectors.input);
+    if (!activeInput) {
+        console.warn('[WF Focus] Cannot find class input. Trying to click the focus pill as fallback.');
+        const pills = Array.from(document.querySelectorAll(CONFIG.selectors.pillWrapper));
+        const activePill = pills.find(p => getPillName(p) === focusedClass);
+        if (activePill) {
+            activePill.click();
+            await new Promise(r => setTimeout(r, 300));
+            activeInput = document.querySelector(CONFIG.selectors.input);
+        }
+    }
+
+    if (!activeInput) {
+        console.error('[WF Focus] Could not localize class input.');
+        state.isBusy = false;
+        return;
+    }
+
+    // CRITICAL: Blur to dismiss any autocomplete/"Recent" dropdown
+    activeInput.blur();
+    await new Promise(r => setTimeout(r, 250));
+
+    const failedToRestore = [];
 
     for (const className of classesToRestore) {
-        simulateFocus(input);
-        await new Promise(r => setTimeout(r, 80));
-        setReactValue(input, className);
-        await new Promise(r => setTimeout(r, 150));
-        simulateEnter(input);
-        await new Promise(r => setTimeout(r, 450));
+        let success = false;
+
+        for (let attempt = 0; attempt <= CONFIG.timing.maxRetries; attempt++) {
+            // Re-acquire input in case Webflow re-rendered it
+            activeInput = document.querySelector(CONFIG.selectors.input) || activeInput;
+
+            if (attempt > 0) {
+                console.log(`[WF Focus] Retry ${attempt}/${CONFIG.timing.maxRetries} for "${className}"...`);
+                simulateFocus(activeInput);
+                clearInput(activeInput);
+                await new Promise(r => setTimeout(r, CONFIG.timing.retryDelay));
+            }
+
+            success = await restoreSingleClass(activeInput, className);
+            if (success) break;
+        }
+
+        if (!success) {
+            console.error(`[WF Focus] Failed to restore "${className}" after ${CONFIG.timing.maxRetries + 1} attempts.`);
+            failedToRestore.push(className);
+        }
     }
+
+    if (failedToRestore.length > 0) {
+        console.warn('[WF Focus] Some classes failed. Updating banner...');
+        showShield(failedToRestore);
+        state.isBusy = false;
+        // Keep focusMode active so user can see the banner
+        return;
+    }
+
+    console.log('[WF Focus] Restore complete. Final cleanup...');
+    exitFocusMode();
+    console.log('[WF Focus] Done. Pills:', getAllCurrentPillNames());
+    state.isBusy = false;
 }
 
 function exitFocusMode() {
@@ -291,7 +522,10 @@ function exitFocusMode() {
 }
 
 function enterFocusMode(targetPill) {
-    if (!isTopFrame || !state.settings.enabled) return;
+    if (!isTopFrame || !state.settings.enabled || state.isBusy) {
+        if (state.isBusy) console.log('[WF Focus] Operation in progress, ignoring focus request.');
+        return;
+    }
 
     const pillName = getPillName(targetPill);
     if (!pillName) return;
@@ -312,6 +546,7 @@ function enterFocusMode(targetPill) {
     targetPill.style.outlineOffset = '-2px';
     targetPill.style.boxShadow = '0 0 12px rgba(255, 145, 0, 0.6)';
 
+    state.isBusy = true;
     showShield();
 
     (async () => {
@@ -322,6 +557,7 @@ function enterFocusMode(targetPill) {
         const currentPills = Array.from(document.querySelectorAll(CONFIG.selectors.pillWrapper));
         const activeOne = currentPills.find(p => getPillName(p) === pillName);
         if (activeOne) activeOne.click();
+        state.isBusy = false;
     })();
 }
 
@@ -353,5 +589,5 @@ if (isTopFrame) {
         }
     }, true);
 
-    console.log("[WF Focus] v0.1.1 Ready.");
+    console.log("[WF Focus] v0.2.1 Ready.");
 }

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "WF Focus",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "Streamline Webflow class editing by focusing on parent classes.",
   "permissions": [
     "activeTab",
@@ -14,9 +14,6 @@
   "action": {
     "default_popup": "popup/popup.html",
     "default_title": "Webflow Class Focus"
-  },
-  "background": {
-    "service_worker": "background.js"
   },
   "content_scripts": [
     {
