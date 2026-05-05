@@ -17,6 +17,16 @@
             <h1>WF Focus</h1>
         </div>
 
+        <!-- Live focus tracker (hidden when focus mode is inactive) -->
+        <div id="focusTracker" class="focus-tracker" style="display: none;">
+            <div class="focus-tracker-header">
+                <span class="focus-dot"></span>
+                <span class="focus-title">Focus actif sur <strong id="focusedClassName"></strong></span>
+            </div>
+            <p class="focus-subtitle">Classes à restaurer (dans l'ordre) :</p>
+            <div id="focusClassList" class="focus-class-list"></div>
+        </div>
+
         <div class="settings-card">
             <div class="setting-item">
                 <div class="info">
@@ -42,7 +52,7 @@
         </div>
 
         <div class="footer">
-            <p>Version 0.2.1 • Refined UI 2.0</p>
+            <p>Version 1.0.0</p>
             <button id="resetDefaults" class="secondary-btn">Reset Defaults</button>
         </div>
     </div>
