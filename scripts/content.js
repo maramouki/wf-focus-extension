@@ -127,12 +127,15 @@ function computeMaskBoundary() {
 }
 
 function buildToastBanner(failedClasses = []) {
+    const isFailed = failedClasses.length > 0;
+    const classes = isFailed ? failedClasses : state.removedClasses;
+
     const toast = document.createElement('div');
     toast.style.cssText = `
         background: #fffafa;
         border: 2px solid #ff9100;
-        border-radius: 40px;
-        padding: 12px 24px;
+        border-radius: 24px;
+        padding: 14px 20px;
         display: flex;
         align-items: center;
         gap: 16px;
@@ -146,71 +149,61 @@ function buildToastBanner(failedClasses = []) {
 
     const iconContainer = document.createElement('div');
     iconContainer.style.cssText = `
-        width: 40px; height: 40px; background: #ff9100; border-radius: 12px;
+        width: 36px; height: 36px; background: #ff9100; border-radius: 10px;
         display: flex; align-items: center; justify-content: center;
-        color: white; font-size: 20px; flex-shrink: 0;
+        color: white; font-size: 18px; flex-shrink: 0;
     `;
-    iconContainer.textContent = '!';
+    iconContainer.textContent = isFailed ? '⚠' : '!';
 
     const textWrapper = document.createElement('div');
-    textWrapper.style.cssText = 'display: flex; flex-direction: column;';
+    textWrapper.style.cssText = 'display: flex; flex-direction: column; gap: 8px; min-width: 0;';
+
+    const topRow = document.createElement('div');
+    topRow.style.cssText = 'display: flex; flex-direction: column; gap: 2px;';
 
     const title = document.createElement('div');
-    title.style.cssText = 'font-weight: 700; color: #1a1a1a; font-size: 16px;';
-    title.textContent = 'Focus Mode Active';
+    title.style.cssText = 'font-weight: 700; color: #1a1a1a; font-size: 15px;';
+    title.textContent = isFailed ? 'Manual Restore Needed' : 'Focus Mode Active';
 
     const instructions = document.createElement('div');
-    instructions.style.cssText = 'color: #666; font-size: 13px; margin-top: 2px;';
-    instructions.textContent = 'Shift + Click active pill or ESC to restore';
+    instructions.style.cssText = 'color: #888; font-size: 12px;';
+    instructions.textContent = isFailed
+        ? 'These classes could not be restored automatically'
+        : 'Shift + Click active pill or ESC to restore';
 
-    textWrapper.appendChild(title);
-    textWrapper.appendChild(instructions);
+    topRow.appendChild(title);
+    topRow.appendChild(instructions);
+    textWrapper.appendChild(topRow);
 
-    if (failedClasses.length > 0) {
-        const failedNote = document.createElement('div');
-        failedNote.style.cssText = `
-            margin-top: 14px; padding: 12px 14px;
-            background: #fff8f0; border: 1px solid #ffd8b1; border-radius: 14px;
-            display: flex; flex-direction: column; gap: 8px;
-            box-shadow: inset 0 1px 3px rgba(255,145,0,0.05);
-        `;
-
-        const failedHeader = document.createElement('div');
-        failedHeader.style.cssText = `
-            display: flex; align-items: center; gap: 8px; color: #af4c00;
-            font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em;
-        `;
-        failedHeader.innerHTML = '<span>⚠️</span> Manual Restore Needed';
-
+    if (classes.length > 0) {
         const pillContainer = document.createElement('div');
-        pillContainer.style.cssText = 'display: flex; flex-wrap: wrap; gap: 6px;';
+        pillContainer.style.cssText = 'display: flex; flex-wrap: wrap; gap: 5px;';
 
-        failedClasses.forEach(name => {
-            const failPill = document.createElement('span');
-            failPill.style.cssText = `
-                background: #fefefe; border: 1px dashed #ff9100; color: #ff9100;
-                padding: 4px 10px; border-radius: 16px; font-size: 11px;
+        classes.forEach((name, i) => {
+            const pill = document.createElement('span');
+            pill.style.cssText = `
+                background: #fff8f0; border: 1px dashed #ff9100; color: #e07800;
+                padding: 3px 10px; border-radius: 14px; font-size: 11px;
                 font-weight: 600; white-space: nowrap;
             `;
-            failPill.textContent = name;
-            pillContainer.appendChild(failPill);
+            pill.textContent = `${i + 1}. ${name}`;
+            pillContainer.appendChild(pill);
         });
 
-        failedNote.appendChild(failedHeader);
-        failedNote.appendChild(pillContainer);
-        textWrapper.appendChild(failedNote);
+        textWrapper.appendChild(pillContainer);
     }
 
     const restoreBtn = document.createElement('button');
     restoreBtn.style.cssText = `
-        margin-left: 12px; background: #ff9100; color: white; border: none;
-        padding: 10px 22px; border-radius: 20px; font-weight: 600; font-size: 14px;
+        margin-left: 8px; background: #ff9100; color: white; border: none;
+        padding: 10px 20px; border-radius: 18px; font-weight: 600; font-size: 13px;
         cursor: pointer; transition: .2s; box-shadow: 0 4px 12px rgba(255,145,0,0.2);
+        flex-shrink: 0;
     `;
-    restoreBtn.textContent = failedClasses.length > 0 ? 'Got it' : 'Restore';
+    restoreBtn.textContent = isFailed ? 'Got it' : 'Restore';
     restoreBtn.onclick = (e) => {
         e.stopPropagation();
-        if (failedClasses.length > 0) {
+        if (isFailed) {
             exitFocusMode();
         } else {
             restoreClasses();
