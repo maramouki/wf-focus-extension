@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "WF Focus",
-  "version": "0.2.1",
-  "description": "Streamline Webflow class editing by focusing on parent classes.",
+  "version": "1.0.0",
+  "description": "Isolate Webflow parent classes with Shift+Click. Press ESC or Shift+Click again to restore.",
   "permissions": [
     "activeTab",
     "scripting",
@@ -18,16 +18,12 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*.webflow.com/*"
+        "https://webflow.com/design/*"
       ],
       "js": [
         "scripts/content.js"
       ],
-      "css": [
-        "styles/main.css"
-      ],
-      "run_at": "document_idle",
-      "all_frames": true
+      "run_at": "document_idle"
     }
   ]
 }
