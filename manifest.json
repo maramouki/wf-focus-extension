@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "WF Focus",
   "version": "1.0.0",
-  "description": "Isolate Webflow parent classes with Shift+Click. Press ESC or Shift+Click again to restore.",
+  "description": "Edit Webflow parent classes safely. Shift+Click to isolate any class — modify freely, restore instantly.",
   "permissions": [
     "activeTab",
     "scripting",
