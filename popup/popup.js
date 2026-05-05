@@ -101,6 +101,10 @@ function initMainScreen() {
         chrome.storage.local.set({ opacity: parseInt(opacitySlider.value) });
     });
 
+    document.getElementById('coffeeBtn').addEventListener('click', () => {
+        chrome.tabs.create({ url: 'https://buymeacoffee.com/maramouki' });
+    });
+
     resetBtn.addEventListener('click', () => {
         chrome.storage.local.set(DEFAULTS, () => {
             if (chrome.runtime.lastError) return;
