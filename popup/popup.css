@@ -295,3 +295,91 @@ input:checked+.slider:before {
     font-weight: 600;
     white-space: nowrap;
 }
+
+/* Onboarding */
+.onboarding-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 16px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.onboarding-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.onboarding-desc {
+    margin: 0;
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.email-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    outline: none;
+    transition: border-color .2s;
+}
+
+.email-input:focus {
+    border-color: var(--primary);
+}
+
+.primary-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+    width: 100%;
+}
+
+.primary-btn:hover {
+    background: var(--primary-hover);
+}
+
+.primary-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.activate-error {
+    margin: 0;
+    font-size: 11px;
+    color: #e53935;
+    text-align: center;
+}
+
+/* Buy me a coffee */
+.coffee-btn {
+    display: block;
+    text-align: center;
+    background: #ffdd00;
+    color: #1a1a1a;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 10px;
+    border-radius: 10px;
+    transition: opacity .2s;
+}
+
+.coffee-btn:hover {
+    opacity: 0.85;
+}

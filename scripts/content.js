@@ -44,7 +44,8 @@ const isTopFrame = window.top === window.self;
 // --- Persistence & Sync ---
 
 if (isTopFrame) {
-    chrome.storage.local.get(['enabled', 'opacity'], (result) => {
+    chrome.storage.local.get(['enabled', 'opacity', 'activated'], (result) => {
+        if (!result.activated) return;
         state.settings.enabled = result.enabled !== false;
         state.settings.opacity = result.opacity !== undefined ? result.opacity : 10;
         initListeners();
