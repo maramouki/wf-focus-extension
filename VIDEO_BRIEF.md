@@ -1,66 +1,37 @@
 # Video Brief — WF Focus Chrome Extension
 
-## Objectif
-Créer une démo vidéo courte et percutante pour le lancement de WF Focus sur le Chrome Web Store et les réseaux sociaux.
+## C'est quoi le produit ?
+WF Focus est une extension Chrome pour les designers et développeurs Webflow.
+
+Elle résout un problème précis : quand tu travailles avec des combo classes dans Webflow, il est impossible d'éditer une classe parente sans risquer de tout casser. WF Focus permet d'isoler n'importe quelle classe en un Shift+Click, d'éditer librement, puis de tout restaurer instantanément.
+
+**Tagline :** *"Isolate the class. Modify safely. Restore instantly."*
 
 ---
 
-## Format
+## Ce que la vidéo doit communiquer
+- Il y a un vrai problème douloureux pour les Webflow users
+- WF Focus le résout de façon élégante et simple
+- C'est gratuit, disponible sur le Chrome Web Store
+
+---
+
+## Contraintes techniques
 - **Durée :** 60 à 90 secondes max
-- **Format :** 16:9 (YouTube / LinkedIn) + version carrée 1:1 si possible (Instagram / Twitter)
-- **Son :** Musique de fond légère (pas de voix obligatoire), texte à l'écran
+- **Format :** 16:9 (YouTube / LinkedIn) + version 1:1 si possible (Instagram / Twitter)
 - **Qualité :** 1080p minimum
+- **Son :** Libre — musique, voix off, texte à l'écran, au choix
 
 ---
 
-## Structure de la vidéo
-
-### 1. Le problème (0 — 10s)
-Montrer la douleur : un designer Webflow clique sur une classe dans le Style Panel, ça modifie la mauvaise classe, les combo classes partent dans tous les sens.
-> Texte à l'écran : *"Editing a parent class in Webflow without breaking your combo classes… is a nightmare."*
-
-### 2. La solution (10 — 50s)
-Démontrer WF Focus en action, étape par étape :
-
-1. L'extension est installée, icône visible dans Chrome
-2. On ouvre une page dans le **Webflow Designer** avec plusieurs combo classes visibles dans le Style Panel (ex: `.card`, `.card--featured`, `.card--large`)
-3. **Shift+Click** sur `.card` → les classes au-dessus disparaissent, le shield orange apparaît, la toast notification s'affiche en haut
-4. On modifie les styles de `.card` tranquillement dans le Style Panel (changer une couleur, un padding — quelque chose de visible)
-5. On appuie sur **ESC** (ou le bouton Restore) → toutes les classes reviennent instantanément
-> Texte à l'écran : *"Shift+Click to isolate. Edit safely. Restore instantly."*
-
-### 3. Call to action (50 — 90s)
-Finir sur le popup de l'extension ouvert, montrer le toggle et le tracker.
-> Texte à l'écran : *"WF Focus — Free on the Chrome Web Store"*
-> + lien / nom de l'extension
-
----
-
-## Éléments visuels importants à capturer
-- Les **class pills** dans le Style Panel de Webflow (les petites pastilles avec les noms de classes)
-- Le **shield semi-transparent orange** qui apparaît sur le canvas
-- La **toast notification** en haut de l'écran avec le bouton "Restore"
-- Le **highlight orange** sur la classe isolée (contour orange qui pulse)
-- Le **popup** de l'extension (live tracker + toggle)
-
----
-
-## Ton & ambiance
-- Propre, moderne, professionnel
-- Pas de chichi — aller droit au but
+## Ressources à disposition
+- Accès à l'extension fonctionnelle pour les tests et captures
 - Couleur principale de l'extension : **#ff9100** (orange)
-- L'extension a déjà son propre design cohérent, s'en inspirer
-
----
-
-## Ce qu'il faut préparer avant de tourner
-- Chrome avec l'extension WF Focus installée et activée
-- Un projet Webflow ouvert dans le Designer avec des éléments ayant **3+ combo classes** (ex: `.btn`, `.btn--primary`, `.btn--large`)
-- Résolution écran propre, pas de notifications système qui popent
+- Logo / icône disponible dans le dossier `/icons`
 
 ---
 
 ## Livraisons attendues
-- [ ] Fichier vidéo final 16:9 (MP4, 1080p)
-- [ ] Version carrée 1:1 si possible
-- [ ] Miniature / thumbnail (1280x720)
+- Fichier vidéo final 16:9 (MP4, 1080p)
+- Version carrée 1:1 si possible
+- Miniature / thumbnail (1280x720)
