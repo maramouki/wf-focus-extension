@@ -20,7 +20,7 @@ Elle résout un problème précis : quand tu travailles avec des combo classes d
 - **Durée :** 60 à 90 secondes max
 - **Format :** 16:9 (YouTube / LinkedIn) + version 1:1 si possible (Instagram / Twitter)
 - **Qualité :** 1080p minimum
-- **Son :** Libre — musique, voix off, texte à l'écran, au choix
+- **Son :** Libre — musique, texte à l'écran, au choix (pas de voix off)
 
 ---
 
