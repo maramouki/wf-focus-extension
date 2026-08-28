@@ -7,6 +7,15 @@
 
 ---
 
+> ## ✅ Décision retenue — scénario A, arrêt du projet
+>
+> Le sélecteur d'héritage natif a été testé dans le Designer : il couvre le workflow que
+> l'extension automatisait. Le projet est **archivé**, sans correctif appliqué. Les constats
+> ci-dessous restent la trace de l'état du code au moment de l'arrêt, et du raisonnement qui
+> y a mené.
+
+---
+
 ## 1. Résumé exécutif
 
 WF Focus résout un vrai problème (styliser une classe parente sous des combo classes) avec une

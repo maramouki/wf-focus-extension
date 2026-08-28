@@ -1,3 +1,11 @@
+> **Document historique — projet archivé en août 2026.**
+> Conservé tel quel pour mémoire. Deux réserves à connaître avant de le lire :
+> le §2 (« Définition du Problème ») décrit un flux que Webflow a depuis résolu nativement
+> via le sélecteur d'héritage ; et le §4.4 (badge d'icône) comme le §5 (`setReactValue`)
+> décrivent des éléments qui n'ont jamais été implémentés. Voir [AUDIT.md](./AUDIT.md).
+
+---
+
 # Document de Conception Produit : WF Focus (v0.1.1)
 
 ## 1. Introduction
